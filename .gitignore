@@ -1,0 +1,13 @@
+# Segredos e contexto interno — NUNCA commitar
+.env
+CLAUDE.local.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# macOS
+.DS_Store
