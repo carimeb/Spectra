@@ -55,15 +55,26 @@ Princípios fixos:
   (`repositories.analysis`, computed pattern).
 - `_id` string legível (slug), ex.: `comp-pagamentos-core`, `area-cartoes`.
 
+## Decisões de fidelidade ao schema do cliente (verificadas no DDL — autoritativas)
+
+Estas decisões refinam o SPEC após conferência com o DDL real. Em conflito, **estas valem**:
+
+1. **DOIS grafos independentes** (a fonte não os liga):
+   - **Arquitetura**: `archComponents` ↔ `archComponents`, arestas **NÃO-tipadas** (`relations[] = [{targetId}]`), espelhando `ArchComponentRelation` (pai/filho sem tipo). Componentes **não** referenciam repos/áreas/usuários.
+   - **Operacional**: `repositories` → `areas` (RepositoryArea) → hierarquia `Area.ParentId` → responsáveis (AreaUserDetail).
+2. **`targetFramework` NÃO existe** — a versão .NET é **derivada** da dependência de runtime (`CodeProjectDependency`: nome+versão, ex.: `Microsoft.AspNetCore.App 6.0.x → net6.0`). Não armazenar como campo.
+3. **Enriquecimentos de demo** (rotular como tais, não são da fonte): `description` e `embedding`, e o vocabulário dos `attributes` (placeholders até termos os nomes reais de `ArchAttribute`).
+4. **Renames de fidelidade**: `cve`→`sourceVulnerabilityId`, `packageName`→`artifactDetails`; `users` ganha `empresa`/`isTerceiro`; `areas` usa `cost`/`revenue`/`isActive`; `repositories.location` tem 4 valores (cloud/server/payments/unidentified); `analysis` inclui `isOnCloudActiveWithDeploy`; `dependencies` ganha `conformityStatus`/`codeProjectPath`.
+
 ## Queries-herói (contrato de resposta é fixo)
 
-- **A — Impacto de migração .NET X→Y** (`GET /api/graph/impact?targetFramework=`):
-  parte de `dependencies` → `repositories` → `$graphLookup` de componentes → `$graphLookup`
-  de áreas → responsáveis → agrupa por BU. `effortScore` usa a **fórmula fechada do SPEC
-  §6.1** (não inventar outra); sempre acompanhado de `effortBreakdown` explicativo.
-- **B — Hierarquia de áreas recursiva** (`GET /api/areas/tree`): `$graphLookup` descendo, JSON aninhado.
-- **C — Esquema flexível sem migração** (`/api/schema/components/*`): adicionar atributo/relação
-  e re-executar A/grafo sem migração alguma.
+- **A — Impacto de migração .NET X→Y** (`GET /api/graph/impact?framework=net6.0`), **grafo OPERACIONAL**:
+  `dependencies` (derivar framework) → `$group` por repo → `$lookup repositories` → `$graphLookup areas`
+  (subindo `Area.ParentId` até a BU) → responsáveis (AreaUserDetail) → agrupa por BU. "Aplicações" = projetos/repos.
+  `effortScore` usa a **fórmula fechada do SPEC §6.1**; sempre com `effortBreakdown`.
+- **B — Hierarquia de áreas recursiva** (`GET /api/areas/tree`): `$graphLookup` descendo `Area.ParentId`, JSON aninhado.
+- **C — Esquema flexível sem migração** (`/api/schema/components/*`): adicionar atributo/relação e re-executar A/grafo sem migração alguma.
+- **Grafo de arquitetura** (módulo Mapa & Copilot): `$graphLookup` em `archComponents.relations` responde "quais sistemas dependem de X" + busca híbrida sobre `description`.
 
 ## Env vars (só placeholders no `.env.example`)
 

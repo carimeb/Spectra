@@ -114,10 +114,8 @@ Usar `_id` string legível (slug) em todas as collections para facilitar leitura
     "dataClassification": "confidential"
   },
   "relations": [
-    { "type": "belongs_to",   "targetId": "area-meios-de-pagamento", "targetCollection": "areas" },
-    { "type": "depends_on",   "targetId": "comp-antifraude",         "targetCollection": "archComponents" },
-    { "type": "deployed_from","targetId": "repo-pagamentos-core-api","targetCollection": "repositories" },
-    { "type": "owned_by",     "targetId": "user-0042",               "targetCollection": "users" }
+    { "targetId": "comp-antifraude" },
+    { "targetId": "comp-cadastro-core" }
   ],
   "embedding": [0.013, -0.221, "..."],
   "createdAt": { "$date": "2024-03-11T00:00:00Z" },
@@ -125,10 +123,11 @@ Usar `_id` string legível (slug) em todas as collections para facilitar leitura
 }
 ```
 
-- `type` ∈ `{"system","application","platform","integration","database","queue"}`.
-- `attributes` é **livre por documento** — documentos diferentes podem ter chaves diferentes (este é o ponto da query-herói C).
-- `description` em português, 2–4 frases, rica em vocabulário de domínio (é o corpus da busca híbrida).
-- `embedding`: vetor da `description` (voyage-3-lite, 512 dims). Omitir o campo quando não houver `EMBEDDINGS_API_KEY`.
+- `type` ∈ `{"system","application","platform","integration","database","queue"}` (vem de `ArchComponentType`).
+- **`relations` é grafo ISOLADO componente↔componente e NÃO-tipado** — espelha `ArchComponentRelation` (pai/filho, sem coluna de tipo). Não há arestas para repos/áreas/usuários (essa ligação não existe na fonte); os dois grafos são separados.
+- `attributes` é **livre por documento** — documentos diferentes podem ter chaves diferentes (ponto da query-herói C). Era EAV (`ArchComponentAttribute`+`ArchAttribute`).
+- `description` (enriquecimento de demo, não vem da fonte): pt-BR, 2–4 frases, corpus da busca híbrida.
+- `embedding` (enriquecimento): vetor da `description` (voyage-3-lite, 512 dims). Omitir quando não houver `EMBEDDINGS_API_KEY`.
 
 ### 4.2 `areas` — hierarquia organizacional (recursiva)
 
@@ -140,12 +139,15 @@ Usar `_id` string legível (slug) em todas as collections para facilitar leitura
   "parentId": "area-diretoria-produtos",
   "managerId": "user-0007",
   "techLeadId": "user-0019",
-  "attributes": { "costCenter": "CC-1042" }
+  "cost": 1042000.00,
+  "revenue": 5300000.00,
+  "isActive": true
 }
 ```
 
-- `level` ∈ `{"company","directorate","bu","squad"}` — 4 níveis, raiz única com `parentId: null`.
-- Mantém adjacência (`parentId`) de propósito: espelha o modelo real do cenário e é o insumo da query-herói B.
+- `level` ∈ `{"company","directorate","bu","squad"}` — deriva de `Area.Type` (tinyint) na fonte; 4 níveis, raiz única com `parentId: null`.
+- Mantém adjacência (`parentId`) de propósito: espelha `Area.ParentId` e é o insumo da query-herói B.
+- `cost`/`revenue`/`isActive` são campos reais de `Area`. `managerId`/`techLeadId` são derivados de `AreaUserDetail` (N:N com papel) — denormalização de conveniência.
 
 ### 4.3 `repositories` — computed pattern (substitui a function SQL)
 
@@ -170,20 +172,21 @@ Espelha as ~20 colunas do resultado da function de análise, **pré-computadas n
     "commitTotal": 1382,
     "hasSucceededDeploy": true,
     "isOnCloudActive": true,
-    "isOnServerActive": false
+    "isOnServerActive": false,
+    "isOnCloudActiveWithDeploy": true
   },
   "areaId": "area-cartoes",
   "topDependencies": [
     { "name": "Microsoft.AspNetCore.App", "version": "6.0.25", "type": "framework" },
     { "name": "Newtonsoft.Json", "version": "13.0.3", "type": "nuget" }
-  ],
-  "targetFramework": "net6.0"
+  ]
 }
 ```
 
-- `analysis` = campos que no relacional exigiam 6 CTEs; aqui já vêm prontos (mensagem: o consumidor de BI lê direto, sem function).
+- `analysis` = campos que no relacional exigiam 6 CTEs; aqui já vêm prontos (o consumidor de BI lê direto, sem function). Inclui `isOnCloudActiveWithDeploy` (existe no resultado da function real).
 - `topDependencies` = extended reference com top-5 dependências (o detalhe completo está em `dependencies`).
-- `location` ∈ `{"cloud","server"}` apenas — hosts genéricos.
+- `location` ∈ `{"cloud","server","payments","unidentified"}` (espelha `RepositoryLocation` da function; hosts genéricos).
+- **NÃO há `targetFramework`**: a versão .NET é derivada da dependência de runtime (ver §6.1). Outros campos reais úteis: `gitId`, `defaultBranch`, `isDisabled`, `firstCommitDate`.
 
 ### 4.4 `users` — identidades embutidas (subset pattern)
 
@@ -211,12 +214,15 @@ Uma linha por (repositório × pacote):
   "name": "Microsoft.AspNetCore.App",
   "version": "6.0.25",
   "type": "framework",
-  "targetFramework": "net6.0",
-  "ecosystem": "nuget"
+  "conformityStatus": "compliant",
+  "codeProjectPath": "src/pagamentos-core-api/pagamentos-core-api.csproj"
 }
 ```
 
-`targetFramework` distribuído entre `net48`, `net6.0`, `net8.0` — é o pivô da query-herói A.
+Espelha `CodeProjectDependency`. **Não há `targetFramework`**: a versão .NET é DERIVADA
+do par (`name`, `version`) da dependência de runtime — `Microsoft.AspNetCore.App 6.0.x`
+→ `net6.0`; `8.0.x` → `net8.0`; `Microsoft.AspNet.*` → `net48`. Essa derivação é o
+primeiro estágio da query-herói A. Distribuição no seed: ~60 repos em net6.0.
 
 ### 4.6 `vulnerabilities` — collection de fatos
 
@@ -224,19 +230,23 @@ Uma linha por (repositório × pacote):
 {
   "_id": "vuln-00007",
   "repositoryId": "repo-pagamentos-core-api",
-  "packageName": "Newtonsoft.Json",
+  "repositoryName": "pagamentos-core-api",
+  "artifactDetails": "Newtonsoft.Json",
   "severity": "high",
-  "cve": "CVE-2024-99999",
+  "sourceVulnerabilityId": "CVE-2024-99999",
+  "source": "SCA",
   "status": "open",
   "detectedAt": { "$date": "2026-04-02T00:00:00Z" }
 }
 ```
 
-(CVEs fictícios no formato `CVE-2024-9XXXX`.)
+Espelha `CodeVulnerability`: `artifactDetails` (era `packageName`) ← `ArtifactDetails`;
+`sourceVulnerabilityId` (era `cve`) ← `SourceVulnerabilityId` (nem sempre é CVE — pode
+ser `GHSA-…`); `severity` ← `SeverityLevel`; `status` ← `State`; `detectedAt` ← `FirstTimeFound`.
 
 ### 4.7 Índices (criados por `seed/indexes.py`)
 
-- Regulares: `archComponents.relations.targetId`, `areas.parentId`, `dependencies.repositoryId`, `dependencies.targetFramework`, `vulnerabilities.repositoryId`, `repositories.areaId`.
+- Regulares: `archComponents.relations.targetId`, `areas.parentId`, `dependencies.repositoryId`, `dependencies.name` (derivação de framework na query A), `vulnerabilities.repositoryId`, `repositories.areaId`.
 - **Atlas Search** (`default`) em `archComponents`: full-text sobre `name` + `description`, analyzer `lucene.portuguese`.
 - **Atlas Vector Search** (`vector_index`) em `archComponents.embedding`: 512 dims, `cosine`. Criar apenas se embeddings existirem.
 - Criação via `pymongo` (`create_search_index`); tratar caso "índice já existe" como sucesso idempotente.
@@ -255,34 +265,30 @@ Implementar cada uma em `backend/pipelines/` como função que retorna o pipelin
 
 ### 6.1 Query A — Impacto de migração .NET X → Y (`impact.py`)
 
-Endpoint: `GET /api/graph/impact?targetFramework=net6.0`
+Endpoint: `GET /api/graph/impact?framework=net6.0`
 
-Esqueleto do pipeline (partindo de `dependencies`):
+> **Fidelidade (verificado no DDL):** o impacto flui pelo **grafo operacional**
+> (`Repository`→`Area`→responsáveis). O grafo de arquitetura (`ArchComponent`) é
+> **separado** na fonte — não há vínculo repo↔componente —, então **não** entra
+> aqui. A versão .NET é **derivada** da dependência de runtime (não há campo
+> `targetFramework`). "Aplicações" = projetos/repositórios reais.
+
+Esqueleto do pipeline (partindo de `dependencies` = `CodeProjectDependency`):
 
 ```python
 [
-  # 1. Repositórios que usam o framework na versão de origem
-  {"$match": {"targetFramework": target_framework}},
+  # 1. Derivar a versão .NET do pacote de runtime e filtrar a versão de origem.
+  #    (net6.0/net8.0 <- Microsoft.AspNetCore.App 6.0.x/8.0.x ; net48 <- Microsoft.AspNet.*)
+  {"$match": {"name": "Microsoft.AspNetCore.App", "version": {"$regex": r"^6\."}}},
   {"$group": {"_id": "$repositoryId"}},
 
-  # 2. Junta o documento do repositório (métricas pré-computadas)
+  # 2. Junta o documento do repositório (métricas pré-computadas = function RepositoryGetAnalysis)
   {"$lookup": {"from": "repositories", "localField": "_id",
                 "foreignField": "_id", "as": "repo"}},
   {"$unwind": "$repo"},
   {"$match": {"repo.analysis.isDeleted": False, "repo.analysis.isDeprecated": False}},
 
-  # 3. Sobe o grafo de arquitetura: repo → app → sistema → plataforma
-  {"$graphLookup": {
-      "from": "archComponents",
-      "startWith": "$repo._id",
-      "connectFromField": "_id",
-      "connectToField": "relations.targetId",
-      "as": "impactedComponents",
-      "maxDepth": 4,
-      "depthField": "graphDepth"
-  }},
-
-  # 4. Sobe a hierarquia de áreas até a BU
+  # 3. Sobe a hierarquia de áreas até a BU (RepositoryArea -> Area.ParentId)
   {"$graphLookup": {
       "from": "areas",
       "startWith": "$repo.areaId",
@@ -292,17 +298,18 @@ Esqueleto do pipeline (partindo de `dependencies`):
       "maxDepth": 3
   }},
 
-  # 5. Responsáveis (managerId / techLeadId da cadeia de áreas)
+  # 4. Responsáveis (managerId / techLeadId da cadeia de áreas = AreaUserDetail)
   {"$lookup": {"from": "users", "localField": "areaChain.managerId",
                 "foreignField": "_id", "as": "managers"}},
 
-  # 6. Agrega por BU: nº de apps, nº de repos, responsáveis, proxy de esforço
+  # 5. Agrega por BU: nº de apps (projetos), nº de repos, responsáveis, proxy de esforço
   {"$group": { ... }},
   {"$sort": {"appCount": -1}}
 ]
 ```
 
-Resposta agrupada por BU: `{ bu, appCount, repoCount, components[], managers[], effortScore, effortBreakdown }`.
+Resposta agrupada por BU: `{ bu, appCount, repoCount, projects[], managers[], effortScore, effortBreakdown }`
+(`appCount` = nº de projetos distintos; `repoCount` = nº de repositórios afetados).
 
 **Fórmula fechada do `effortScore`** (não inventar outra): soma, por repositório afetado, de `pontos_tamanho + pontos_risco`, onde:
 
