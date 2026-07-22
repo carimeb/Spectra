@@ -502,6 +502,16 @@ def gen_arch_components() -> list[dict]:
         for sys in random.sample(systems, random.randint(1, 3)):
             plat["relations"].append(edge(sys["_id"]))
 
+    # Infra também depende de infra (realista, mantém a semântica "depende de" e
+    # evita nós de saída vazios): integração -> base/fila; base -> fila (outbox/CDC).
+    for integ in integrations:
+        for s in random.sample(databases + queues, random.randint(1, 2)):
+            integ["relations"].append(edge(s["_id"]))
+    for db in databases:
+        if random.random() < 0.5 and queues:
+            db["relations"].append(edge(random.choice(queues)["_id"]))
+    # (filas permanecem folhas — são endpoints puros de infraestrutura)
+
     # >=3 sistemas dependem do "Motor de Crédito" (pergunta de referência 2)
     motor = next(c for c in systems if c["name"] == "Motor de Crédito")
     for sys in random.sample([s for s in systems if s is not motor], 3):
