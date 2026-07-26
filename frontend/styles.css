@@ -132,8 +132,9 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .drawer h3 { margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; }
 .drawer .field { margin-bottom: 12px; }
 .drawer .field .label { text-transform: uppercase; font-size: 11px; letter-spacing: .06em; color: var(--muted); }
-/* títulos de seção do drawer: verde-terminal, 2pt maiores e em negrito (âncoras de leitura) */
-.drawer .label.sec { color: #7EE787; font-size: 13px; font-weight: 700;
+/* títulos de seção (drawer do Mapa, drilldown do Dashboard): verde-terminal,
+   2pt maiores e em negrito — âncoras de leitura durante a demo */
+.label.sec { color: #7EE787; font-size: 13px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .06em; }
 /* "Atributos" e "Documento cru": uma linha extra de respiro */
 .drawer .label.big-gap { margin-top: 30px; }
@@ -186,7 +187,10 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .dir { margin-left: auto; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .dir.ok { color: var(--ok); } .dir.warn { color: var(--warn); }
 .qcard p { margin: 0 0 10px; font-size: 13px; color: var(--muted); line-height: 1.55; }
-.qcard .was { color: var(--danger); font-weight: 600; }
+/* contraste "Era: ..." (a dor no SQL Server), usado nos qcards e nas descrições das telas */
+.was { color: var(--danger); font-weight: 600; }
+/* termo com explicação no hover */
+.hint { cursor: help; border-bottom: 1px dotted var(--muted); }
 .qcard-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .qcard-actions select { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
   background: var(--card); color: var(--text); font-size: 13px; }
@@ -202,6 +206,10 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
   padding: 2px 8px; border-radius: 6px; margin-left: 2px; white-space: nowrap; }
 .tree-row.flash { outline: 2px solid var(--info); outline-offset: -2px; }
 .flash-outline { outline: 2px solid var(--ok); outline-offset: -2px; }
+
+/* documento cru compacto no painel lateral (Repositórios) */
+.side-json { margin: 0; background: #0B1020; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 11px; line-height: 1.5; overflow: auto; max-height: 320px; color: #b9c4dd; }
 
 /* prova ao vivo do Esquema Flexível (query C) */
 .proof-line { font-size: 12.5px; padding: 3px 0; line-height: 1.45; }

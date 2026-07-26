@@ -7,7 +7,8 @@
   async function render(view) {
     view.innerHTML = `
       <div class="view-head"><h2>Esquema Flexível</h2>
-        <div class="desc">Cada componente pode ter atributos diferentes, porque o esquema pertence ao documento e não a uma tabela rígida. Adicione um atributo ou uma relação e veja o documento mudar na hora, sem <code>ALTER TABLE</code>, sem migração de modelo e sem deploy.</div></div>
+        <div class="desc">Cada componente pode ter atributos diferentes, porque o esquema pertence ao documento e não a uma tabela rígida. Adicione um atributo ou uma relação e veja o documento mudar na hora, sem <code>ALTER TABLE</code>, sem migração de modelo e sem deploy.
+          <span class="was">Era: padrão EAV, três tabelas e dois JOINs para ler um único atributo.</span></div></div>
       <div class="filters">
         <label>Componente
           <input id="sc-search" list="sc-list" placeholder="Buscar componente…" style="min-width:280px" />
