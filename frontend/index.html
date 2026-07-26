@@ -3,15 +3,83 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Spectra</title>
+  <title>Spectra · Engineering intelligence, decomposed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
 </head>
 <body>
-  <!-- Placeholder da Fase 2. O frontend completo (landing + shell + módulos) é a Fase 3. -->
-  <main style="font-family: system-ui, sans-serif; max-width: 720px; margin: 4rem auto; padding: 0 1rem;">
-    <h1>Spectra</h1>
-    <p><em>Engineering intelligence, decomposed.</em></p>
-    <p>API no ar. Documentação interativa em <a href="/docs">/docs</a>.</p>
-    <p>O frontend completo chega na Fase 3.</p>
-  </main>
+
+  <!-- ============================ LANDING ============================ -->
+  <section id="landing" class="landing">
+    <header class="landing-nav">
+      <div class="brand"><span class="prism"></span> Spectra</div>
+      <button class="btn-ghost" id="open-demo-top">Abrir demo</button>
+    </header>
+
+    <div class="hero">
+      <h1>Spectra</h1>
+      <p class="tagline">Engineering intelligence, decomposed.</p>
+      <p class="sub">Modela repositórios, arquitetura, áreas, dependências e vulnerabilidades
+        em MongoDB Atlas, se beneficiando de documentos flexíveis, travessias de grafo com <code>$graphLookup</code>
+        e um agente de IA que responde perguntas em português.</p>
+      <button class="btn-primary lg" id="open-demo">Abrir demo →</button>
+    </div>
+
+    <div class="pain-cards">
+      <article class="pain">
+        <h3>Esquema flexível</h3>
+        <p>No banco relacional, incluir um atributo novo em um componente exigia criar
+          tabelas auxiliares e vários JOINs só para ler um único valor. No Spectra, cada
+          componente guarda seus próprios atributos dentro do documento, então você
+          acrescenta uma informação nova na hora, <strong>sem migração e sem parar o sistema</strong>.</p>
+      </article>
+      <article class="pain">
+        <h3>Grafo nativo</h3>
+        <p>Descobrir quais sistemas dependem de outro, ou quais áreas de negócio uma
+          migração afeta, costumava exigir tabelas de ligação e consultas recursivas
+          complexas. Aqui as conexões ficam dentro de cada documento e o MongoDB percorre
+          esse grafo com um único comando, o <code>$graphLookup</code>. Perguntas de
+          impacto e dependência ficam <strong>simples e rápidas</strong>.</p>
+      </article>
+      <article class="pain">
+        <h3>IA sobre os dados</h3>
+        <p>Métricas de repositório que antes dependiam de uma função SQL de centenas de
+          linhas já chegam calculadas dentro do documento, prontas para ler. E um assistente
+          de IA em português responde perguntas do dia a dia, como <em>"quais áreas são
+          afetadas se migrarmos do .NET 6 para o 8?"</em>, consultando os próprios dados.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================= SHELL ============================= -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand sidebar-brand" id="go-home" role="button" title="Voltar à página inicial"><span class="prism"></span> Spectra</div>
+      <nav>
+        <div class="nav-section">Navegação</div>
+        <a class="nav-item" data-view="overview">▧ Visão Geral</a>
+        <a class="nav-item" data-view="graph">◇ Mapa &amp; Grafo</a>
+        <div class="nav-section">Entidades</div>
+        <a class="nav-item" data-view="schema">◈ Esquema Flexível</a>
+        <a class="nav-item" data-view="repositories">▤ Repositórios</a>
+        <a class="nav-item disabled" title="Fase 4">✦ Copilot <span class="badge-new">em breve</span></a>
+      </nav>
+      <div class="sidebar-foot">
+        <span id="conn" class="conn"><span class="dot"></span> conectando…</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="view"><!-- módulos renderizam aqui --></div>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+  <script src="/modules/graph.js"></script>
+  <script src="/modules/schema.js"></script>
+  <script src="/modules/repositories.js"></script>
+  <script>window.Spectra && window.Spectra.init();</script>
 </body>
 </html>

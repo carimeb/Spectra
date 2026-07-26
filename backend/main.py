@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.db import collection_counts, ping
-from backend.routers import areas, graph, repositories, schema_flex
+from backend.routers import areas, graph, repositories, schema_flex, stats
 
 app = FastAPI(
     title="Spectra API",
@@ -29,7 +29,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (graph.router, areas.router, schema_flex.router, repositories.router):
+@app.middleware("http")
+async def no_cache(request, call_next):
+    """Evita cache de assets estáticos durante a demo (sempre revalida)."""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
+
+for r in (graph.router, areas.router, schema_flex.router, repositories.router, stats.router):
     app.include_router(r, prefix="/api")
 
 

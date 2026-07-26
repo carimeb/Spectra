@@ -24,6 +24,24 @@ def impact(framework: str = Query("net6.0", description="Versão .NET de origem:
     return list(get_db().dependencies.aggregate(pipeline))
 
 
+@router.get("/impact/query", summary="Pipeline real da análise de impacto (para exibir na UI)")
+def impact_query(framework: str = Query("net6.0", description="net48, net6.0 ou net8.0")):
+    """Retorna o mesmo pipeline de agregação que `/impact` executa, para a UI mostrar
+    ao desenvolvedor exatamente a query que roda (e ele reproduzir na app dele)."""
+    try:
+        return {"collection": "dependencies", "pipeline": build_impact_pipeline(framework)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.get("/components", summary="Lista leve de componentes (id/name/type) para busca")
+def list_components(q: str | None = Query(None), limit: int = Query(300, ge=1, le=1000)):
+    db = get_db()
+    query = {"name": {"$regex": q, "$options": "i"}} if q else {}
+    docs = db.archComponents.find(query, {"name": 1, "type": 1}).sort("name", 1).limit(limit)
+    return [{"id": d["_id"], "name": d["name"], "type": d["type"]} for d in docs]
+
+
 @router.get("/component/{component_id}", summary="Vizinhança de um componente (para vis-network)")
 def component_neighborhood(component_id: str, depth: int = Query(2, ge=1, le=4)):
     """Retorna `{nodes, edges}` prontos para o vis-network: o componente, quem ele

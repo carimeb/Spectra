@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Spectra — design tokens (emulados do sistema atual do cliente) + componentes
+   Tema ESCURO como assinatura (Mapa & Grafo); tema CLARO nas tabelas/dashboard.
+   ========================================================================== */
+:root {
+  --bg: #0B1020; --surface: #131A2E; --card: #1A2340; --border: #26304F;
+  --text: #E8ECF5; --muted: #8A93A8;
+  --primary: #2E5BFF;
+  --ok: #22C55E; --neutral: #94A3B8; --warn: #F59E0B; --danger: #EF4444;
+  --info: #38BDF8; --saas: #8B5CF6;
+  --radius: 12px; --radius-sm: 8px;
+  --font: 'Inter', system-ui, 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); }
+code { font-family: ui-monospace, Menlo, monospace; background: rgba(46,91,255,.12); padding: 1px 5px; border-radius: 5px; color: var(--info); }
+.hidden { display: none !important; }
+a { color: inherit; text-decoration: none; cursor: pointer; }
+button { font-family: inherit; cursor: pointer; }
+
+.prism { display: inline-block; width: 14px; height: 14px; transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--primary), var(--saas)); border-radius: 3px; margin-right: 8px; }
+.brand { display: flex; align-items: center; font-weight: 700; font-size: 18px; letter-spacing: .01em; }
+
+.btn-primary { background: var(--primary); color: #fff; border: 0; border-radius: var(--radius-sm);
+  padding: 10px 18px; font-weight: 600; font-size: 14px; }
+.btn-primary.lg { padding: 14px 28px; font-size: 16px; }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 16px; font-weight: 500; }
+
+/* ============================= LANDING ============================= */
+.landing { min-height: 100%; padding: 0 6vw; background:
+  radial-gradient(1200px 600px at 70% -10%, rgba(46,91,255,.18), transparent),
+  radial-gradient(800px 500px at 10% 20%, rgba(139,92,246,.10), transparent), var(--bg); }
+.landing-nav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
+.hero { padding: 8vh 0 4vh; max-width: 760px; }
+.hero h1 { font-size: 72px; margin: 0; letter-spacing: -.02em;
+  background: linear-gradient(120deg, #fff, #9db4ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .tagline { font-size: 22px; color: var(--info); margin: 6px 0 20px; font-weight: 500; }
+.hero .sub { font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 28px; }
+.pain-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 2vh 0 8vh; }
+.pain { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+.pain h3 { margin: 0 0 8px; font-size: 17px; }
+.pain p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+/* ============================== SHELL ============================== */
+.app { display: grid; grid-template-columns: 248px 1fr; height: 100vh; }
+.sidebar { background: #0E1424; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 18px 14px; }
+.sidebar-brand { padding: 4px 8px 20px; cursor: pointer; }
+.sidebar-brand:hover { opacity: .85; }
+.nav-section { text-transform: uppercase; font-size: 11px; letter-spacing: .08em; color: var(--muted); margin: 16px 8px 6px; }
+.nav-item { display: flex; align-items: center; gap: 6px; padding: 9px 10px; border-radius: var(--radius-sm);
+  color: #c8cfde; font-size: 14px; font-weight: 500; border-left: 3px solid transparent; }
+.nav-item:hover { background: rgba(255,255,255,.04); }
+.nav-item.active { background: color-mix(in srgb, var(--primary) 16%, transparent); border-left-color: var(--primary); color: #fff; }
+.nav-item.disabled { color: var(--muted); cursor: default; }
+.badge-new { font-size: 9px; text-transform: uppercase; background: var(--saas); color: #fff; padding: 1px 6px; border-radius: 8px; margin-left: auto; }
+.sidebar-foot { margin-top: auto; padding: 10px 8px 0; }
+.conn { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.conn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neutral); }
+.conn.ok .dot { background: var(--ok); } .conn.bad .dot { background: var(--danger); }
+
+.main { overflow: auto; background: var(--bg); }
+
+/* contraste Antes/Agora (argumento de venda por tela) */
+.value-callout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 28px 18px; }
+.vc { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; background: var(--surface); }
+.vc-tag { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; }
+.vc.before { border-left: 4px solid var(--danger); }
+.vc.before .vc-tag { color: var(--danger); }
+.vc.after { border-left: 4px solid var(--ok); }
+.vc.after .vc-tag { color: var(--ok); }
+.vc p { margin: 6px 0 0; font-size: 13px; color: var(--text); line-height: 1.5; }
+
+/* view header comum */
+.view-head { padding: 22px 28px 8px; }
+.view-head h2 { margin: 0; font-size: 22px; }
+.view-head .desc { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+/* ===================== Dashboard / tabelas (tema escuro) ===================== */
+/* KPI cards (Visão Geral) */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; padding: 12px 28px 28px; }
+.kpi-card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--rail, var(--primary));
+  border-radius: var(--radius); padding: 16px 18px; }
+.kpi-card h3 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.kpi-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+.kpi-card input, .kpi-card select { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.kpi-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.kpi-num b { display: block; font-size: 26px; font-weight: 700; color: var(--text); }
+.kpi-num small { color: var(--muted); font-size: 11px; }
+.kpi-num.ok b { color: var(--ok); } .kpi-num.warn b { color: var(--warn); }
+.kpi-num.danger b { color: var(--danger); } .kpi-num.info b { color: var(--info); }
+.kpi-num.saas b { color: var(--saas); }
+
+/* tabela estilo Power BI (tema escuro) */
+table.grid { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+table.grid th { text-align: left; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; color: var(--muted); padding: 10px 12px; background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border); }
+table.grid td { padding: 9px 12px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
+.filters { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 28px 16px; align-items: end; }
+.filters label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 4px; }
+.filters input, .filters select { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-size: 13px; }
+
+/* badges de status/tag (ambos os temas) */
+.tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: .03em;
+  padding: 2px 7px; border-radius: 6px; background: color-mix(in srgb, var(--c, var(--neutral)) 16%, transparent); color: var(--c, var(--neutral)); font-weight: 600; }
+.tag.ok { --c: var(--ok); } .tag.warn { --c: var(--warn); } .tag.danger { --c: var(--danger); }
+.tag.neutral { --c: var(--neutral); } .tag.info { --c: var(--info); } .tag.saas { --c: var(--saas); }
+.tag.high { --c: var(--danger); } .tag.critical { --c: var(--danger); }
+.tag.medium { --c: var(--warn); } .tag.low { --c: var(--neutral); }
+
+/* ===================== MAPA & GRAFO (dark, full-bleed) ===================== */
+.map-wrap { display: flex; flex-direction: column; height: 100vh; background: var(--bg); }
+.map-topbar { display: flex; align-items: center; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+.map-topbar .search { flex: 1; max-width: 360px; }
+.map-topbar input { width: 100%; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); }
+.map-sub { padding: 10px 20px; color: var(--muted); font-size: 13px; line-height: 1.5; border-bottom: 1px solid var(--border); }
+.stats-ribbon { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 12px 20px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.stat b { color: var(--text); } .stat span { color: var(--muted); }
+.map-body { flex: 1; display: flex; min-height: 0; }
+#graph-canvas { flex: 1; min-height: 0; }
+.drawer { width: 360px; border-left: 1px solid var(--border); background: var(--surface); padding: 18px 20px; overflow: auto; }
+.drawer h3 { margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; }
+.drawer .field { margin-bottom: 12px; }
+.drawer .field .label { text-transform: uppercase; font-size: 11px; letter-spacing: .06em; color: var(--muted); }
+.drawer .field .value { font-size: 14px; margin-top: 2px; }
+.drawer pre { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; overflow: auto; color: #b9c4dd; }
+
+/* painel de impacto (BUs pintadas) */
+.impact-panel { position: absolute; right: 0; top: 0; bottom: 0; width: 380px; background: var(--surface);
+  border-left: 1px solid var(--border); padding: 18px 20px; overflow: auto; box-shadow: -10px 0 30px rgba(0,0,0,.3); }
+.bu-card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--rail, var(--neutral));
+  border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 10px; }
+.bu-card .bu-name { font-weight: 600; }
+.bu-card .bu-meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.bu-card .bar { height: 6px; border-radius: 3px; background: var(--rail); margin-top: 8px; }
+
+/* painel de query (mostra o comando MongoDB real) */
+.q-toggle { margin: 6px 0 10px; }
+.q-toggle a { color: var(--info); font-size: 12px; cursor: pointer; }
+.q-toggle a:hover { text-decoration: underline; }
+.query-code { background: #0B1020; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; line-height: 1.55;
+  overflow: auto; max-height: 340px; white-space: pre; color: #c8d2e8; }
+.query-code .jk { color: #7EE787; }  /* chaves */
+.query-code .js { color: #FF9E64; }  /* strings */
+.query-code .jn { color: #79C0FF; }  /* números */
+.query-code .jb { color: #D2A8FF; }  /* booleanos */
+.query-lead { font-size: 12px; color: var(--muted); margin: 8px 0 6px; }
+
+.chip-bar { display: flex; gap: 14px; justify-content: center; padding: 10px; font-size: 12px; color: var(--muted); }
+.chip-bar .chip { display: inline-flex; align-items: center; gap: 6px; }
+.chip-bar .cdot { width: 10px; height: 10px; border-radius: 50%; }
+
+.toolbar { display: flex; gap: 10px; padding: 10px 20px; }
+.muted { color: var(--muted); }
+.spinner { padding: 40px; text-align: center; color: var(--muted); }
