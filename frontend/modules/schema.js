@@ -114,7 +114,7 @@
     document.getElementById("sc-json").innerHTML = S.highlightDoc(updated, ["attributes", "relations"]);
     const msg = document.getElementById("sc-msg");
     msg.style.color = "var(--ok)";
-    msg.textContent = text + " O grafo e a query A continuam funcionando.";
+    msg.textContent = text + " O grafo e a análise de impacto continuam funcionando.";
   }
 
   S.register("schema", { render });

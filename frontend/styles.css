@@ -177,17 +177,42 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
   padding: 2px 8px; border-radius: 6px; cursor: pointer; }
 .dep-link:hover { background: rgba(56,189,248,.25); }
 
-/* ===================== ANÁLISE DE IMPACTO (query A) ===================== */
-/* cadeia didática da travessia: cada passo = uma collection do grafo operacional */
-.flow-strip { display: flex; align-items: stretch; gap: 10px; padding: 2px 28px 4px; flex-wrap: wrap; }
-.flow-step { flex: 1; min-width: 175px; background: var(--card); border: 1px solid var(--border);
-  border-left: 3px solid var(--primary); border-radius: var(--radius-sm); padding: 10px 14px; }
-.flow-step b { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--info); }
-.flow-step small { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.45; margin-top: 4px; }
-.flow-arrow { align-self: center; color: var(--muted); font-size: 16px; }
-.impact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 14px; padding: 14px 28px 28px; align-items: start; }
-.impact-grid .spinner { grid-column: 1 / -1; }
+/* ============== GRAFO OPERACIONAL (queries A + B numa tela) ============== */
+/* os dois cards de pergunta: a mensagem objetiva que guia a demo */
+.dual-q { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 28px 12px; }
+.qcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.qcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.qcard-head h3 { margin: 0; font-size: 15.5px; }
+.dir { margin-left: auto; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.dir.ok { color: var(--ok); } .dir.warn { color: var(--warn); }
+.qcard p { margin: 0 0 10px; font-size: 13px; color: var(--muted); line-height: 1.55; }
+.qcard .was { color: var(--danger); font-weight: 600; }
+.qcard-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.qcard-actions select { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card); color: var(--text); font-size: 13px; }
+.qlink { color: var(--info); font-size: 12px; cursor: pointer; margin-left: auto; }
+.qlink:hover { text-decoration: underline; }
+.op-queries { padding: 0 28px; }
+.op-body { display: grid; grid-template-columns: 1fr; gap: 18px; padding: 6px 28px 28px; align-items: start; }
+.op-body.with-side { grid-template-columns: minmax(0, 1fr) 380px; }
+.impact-side { position: sticky; top: 12px; }
+/* BU acesa na árvore pela análise de impacto */
+.tree-row.hit { box-shadow: inset 3px 0 0 var(--rail); background: color-mix(in srgb, var(--rail) 10%, transparent); }
+.tree-hit { font-size: 11.5px; background: color-mix(in srgb, var(--rail) 25%, transparent);
+  padding: 2px 8px; border-radius: 6px; margin-left: 2px; white-space: nowrap; }
+.tree-row.flash { outline: 2px solid var(--info); outline-offset: -2px; }
+
+.area-tree { max-width: 860px; }
+.tree-children { margin-left: 20px; border-left: 1px solid var(--border); padding-left: 14px; }
+.tree-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--radius-sm); }
+.tree-row:hover { background: rgba(255,255,255,.04); }
+.tree-node.has-kids > .tree-row { cursor: pointer; }
+.tw { width: 14px; color: var(--muted); font-size: 12px; transition: transform .15s; }
+.tree-node.collapsed > .tree-row .tw { transform: rotate(-90deg); }
+.tree-node.collapsed > .tree-children { display: none; }
+.tree-name { font-size: 14px; font-weight: 500; }
+.tree-repos { margin-left: auto; font-size: 12px; background: rgba(56,189,248,.10); color: var(--info);
+  padding: 2px 9px; border-radius: 6px; font-variant-numeric: tabular-nums; }
 
 .toolbar { display: flex; gap: 10px; padding: 10px 20px; }
 .muted { color: var(--muted); }

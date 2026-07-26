@@ -28,8 +28,8 @@
         <div class="map-sub">Cada nó é um componente da arquitetura e as setas mostram do que ele depende.
           Clique em um nó para expandir a vizinhança e abrir os detalhes.
           Procurando o impacto da migração .NET? Ele fica em
-          <a id="go-impact" style="color:var(--info)">Análise de Impacto</a>: aquela consulta percorre o
-          grafo operacional (repositórios e áreas), que é independente deste mapa.</div>
+          <a id="go-impact" style="color:var(--info)">Hierarquia e Análise de Esforço</a>: aquela consulta
+          percorre o grafo operacional (repositórios e áreas), que na fonte é independente deste mapa.</div>
         <div class="ribbon-row">
           <div class="stats-inline" id="ribbon"><span class="muted">carregando…</span></div>
           <div class="chip-bar inline">
@@ -55,13 +55,8 @@
     });
     network.on("click", (p) => { if (p.nodes.length) onNodeClick(p.nodes[0]); });
 
-    loadStats();
-    loadSearch();
-    await expand(START);
-    network.once("stabilized", () => network.fit());
-
+    // listeners estáticos ANTES de qualquer await, para a tela responder de imediato
     const search = document.getElementById("comp-search");
-    if (!search) return; // usuário já navegou para outro módulo durante o carregamento
     search.addEventListener("change", (e) => {
       const opt = [...document.querySelectorAll("#comp-list option")].find((o) => o.value === e.target.value);
       if (opt) {
@@ -73,7 +68,12 @@
     });
     search.addEventListener("focus", (e) => e.target.select());
     document.getElementById("btn-fit").addEventListener("click", () => network.fit({ animation: true }));
-    document.getElementById("go-impact").addEventListener("click", () => S.showView("impact"));
+    document.getElementById("go-impact").addEventListener("click", () => S.showView("operational"));
+
+    loadStats();
+    loadSearch();
+    await expand(START);
+    network.once("stabilized", () => network.fit());
   }
 
   async function loadStats() {
