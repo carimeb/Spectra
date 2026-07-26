@@ -26,10 +26,18 @@
         .map((c) => `<option data-id="${c.id}" value="${S.esc(c.name)}">${c.type}</option>`).join("");
     } catch { /* */ }
 
-    document.getElementById("sc-search").addEventListener("change", (e) => {
+    const search = document.getElementById("sc-search");
+    if (!search) return; // usuário já navegou para outro módulo durante o carregamento
+    search.addEventListener("change", (e) => {
       const opt = [...document.querySelectorAll("#sc-list option")].find((o) => o.value === e.target.value);
-      if (opt) load(opt.dataset.id);
+      if (opt) {
+        load(opt.dataset.id);
+        // limpa o campo: o datalist filtra pelo texto digitado, então sem limpar
+        // o próximo clique na setinha só mostraria a opção já selecionada
+        e.target.value = "";
+      }
     });
+    search.addEventListener("focus", (e) => e.target.select());
     // atalho: já carrega o Motor de Crédito
     load("comp-motor-de-credito");
   }
@@ -37,6 +45,7 @@
   async function load(id) {
     current = id;
     const body = document.getElementById("sc-body");
+    if (!body) return; // usuário já navegou para outro módulo
     body.innerHTML = `<div class="spinner">carregando documento…</div>`;
     try {
       const c = await S.api(`/schema/components/${id}`);
@@ -45,7 +54,7 @@
           <div>
             <h3 style="margin:0 0 8px">${S.esc(c.name)} <span class="tag info">${S.esc(c.type)}</span></h3>
             <div class="muted" style="font-size:12px;margin-bottom:8px">Documento cru (observe que <code>attributes</code> varia de um componente para outro):</div>
-            <pre id="sc-json" style="background:#0B1020;color:#b9c4dd;padding:14px;border-radius:8px;overflow:auto;max-height:520px">${S.esc(JSON.stringify(c, null, 2))}</pre>
+            <pre id="sc-json" style="background:#0B1020;color:#b9c4dd;padding:14px;border-radius:8px;overflow:auto;max-height:520px">${S.highlightDoc(c, ["attributes", "relations"])}</pre>
           </div>
           <div>
             <div class="kpi-card" style="--rail:var(--saas)">
@@ -102,7 +111,7 @@
   }
 
   function flash(updated, text) {
-    document.getElementById("sc-json").textContent = JSON.stringify(updated, null, 2);
+    document.getElementById("sc-json").innerHTML = S.highlightDoc(updated, ["attributes", "relations"]);
     const msg = document.getElementById("sc-msg");
     msg.style.color = "var(--ok)";
     msg.textContent = text + " O grafo e a query A continuam funcionando.";

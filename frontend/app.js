@@ -34,13 +34,31 @@ window.Spectra = (function () {
     return { high: "danger", critical: "danger", medium: "warn", low: "ok" }[v] || "neutral";
   }
   // syntax highlight simples de JSON (para o painel de query e o documento cru)
-  function highlightJSON(obj) {
-    let h = esc(JSON.stringify(obj, null, 2));
+  function hlJSONText(escaped) {
+    let h = escaped;
     h = h.replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)(\s*:)/g, '<span class="jk">$1</span>$2');
     h = h.replace(/(:\s*)(&quot;(?:[^&]|&(?!quot;))*?&quot;)/g, '$1<span class="js">$2</span>');
     h = h.replace(/(:\s*)(-?\d+(?:\.\d+)?)/g, '$1<span class="jn">$2</span>');
     h = h.replace(/(:\s*)(true|false|null)/g, '$1<span class="jb">$2</span>');
     return h;
+  }
+  function highlightJSON(obj) {
+    return hlJSONText(esc(JSON.stringify(obj, null, 2)));
+  }
+  // documento cru com cores + campos em DESTAQUE (hotKeys), para localizar rápido em demo.
+  // Marca o bloco do campo com sentinelas antes do escape e as troca por <span> no final.
+  function highlightDoc(obj, hotKeys = []) {
+    let text = JSON.stringify(obj, null, 2);
+    hotKeys.forEach((key) => {
+      const re = new RegExp(
+        `^(\\s*)("${key}":\\s*(?:\\[[^\\n]*?\\]|\\{[^\\n]*?\\}|\\[[\\s\\S]*?\\n\\1\\]|\\{[\\s\\S]*?\\n\\1\\}|[^\\n]*?))(,?)$`,
+        "m"
+      );
+      text = text.replace(re, (m, ind, block, comma) => `${ind}@@HOT@@${block}@@ENDHOT@@${comma}`);
+    });
+    return hlJSONText(esc(text))
+      .replaceAll("@@HOT@@", '<span class="j-hot">')
+      .replaceAll("@@ENDHOT@@", "</span>");
   }
   // highlight leve para comandos no estilo shell do MongoDB (db.coll.aggregate(...))
   function highlightCode(str) {
@@ -92,6 +110,7 @@ window.Spectra = (function () {
       const sev = s.vulnerabilities.openBySeverity || {};
       const cloudPct = Math.round(((loc.cloud || 0) / s.repositories.total) * 100);
       const grid = document.getElementById("kpis");
+      if (!grid) return; // usuário já navegou para outro módulo
       grid.innerHTML =
         kpiCard("Repositórios", "primary",
           "Todo o código-fonte catalogado. 'Libs' são bibliotecas compartilhadas e 'deprecados' são repositórios que não evoluem mais.", [
@@ -130,10 +149,11 @@ window.Spectra = (function () {
           { value: s.users.terceiros, label: "terceiros", cls: "warn" },
         ]);
     } catch (e) {
-      document.getElementById("kpis").innerHTML =
+      const grid = document.getElementById("kpis");
+      if (grid) grid.innerHTML =
         `<div class="spinner">não foi possível carregar os KPIs. O servidor está no ar e o seed rodou?</div>`;
     }
-    loadOverviewQueries(view);
+    if (document.getElementById("kpis")) loadOverviewQueries(view);
   }
 
   // painel "ver as consultas" — mostra as agregações reais que alimentam os KPIs
@@ -196,5 +216,5 @@ window.Spectra = (function () {
       a.addEventListener("click", () => showView(a.dataset.view)));
   }
 
-  return { init, register, api, apiPost, el, esc, critClass, highlightJSON, callout, showView };
+  return { init, register, api, apiPost, el, esc, critClass, highlightJSON, highlightDoc, callout, showView };
 })();

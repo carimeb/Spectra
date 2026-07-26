@@ -1,5 +1,7 @@
-/* Módulo Mapa & Grafo (tema escuro) — grafo de arquitetura via vis-network,
-   drawer de detalhe, e "Análise de impacto" (query A) pintando as BUs. */
+/* Módulo Mapa & Grafo — tela dedicada ao grafo de ARQUITETURA (componente ↔
+   componente, arestas não-tipadas). A Análise de Impacto (query A) mora em módulo
+   próprio: ela percorre o grafo OPERACIONAL (repositórios → áreas), que na fonte
+   é independente deste mapa. */
 (function () {
   const S = window.Spectra;
   const TYPE_COLOR = {
@@ -13,24 +15,32 @@
     view.innerHTML = `
       <div class="map-wrap">
         <div class="map-topbar">
-          <div class="brand"><span class="prism"></span> Mapa &amp; Grafo</div>
+          <div>
+            <div class="map-title">Mapa &amp; Grafo <span class="tag saas">grafo de arquitetura</span></div>
+            <div class="map-caption">as ligações moram dentro de cada documento (<code>relations[]</code>) e o <code>$graphLookup</code> percorre o grafo em um único comando: sem tabela de arestas, sem JOINs recursivos</div>
+          </div>
           <div class="search">
             <input id="comp-search" list="comp-list" placeholder="Buscar componente…" />
             <datalist id="comp-list"></datalist>
           </div>
-          <button class="btn-primary" id="btn-impact">Análise de impacto (net6.0)</button>
+          <button class="btn-ghost" id="btn-fit" title="Reenquadrar o grafo na tela">⤢ ajustar</button>
         </div>
-        <div class="map-sub">Cada nó é um componente da arquitetura e as ligações mostram do que ele depende.
-          Clique em um nó para explorar a vizinhança e ver seus detalhes; use a busca para ir direto a um componente.</div>
-        <div class="stats-ribbon" id="ribbon"><span class="muted">carregando…</span></div>
+        <div class="map-sub">Cada nó é um componente da arquitetura e as setas mostram do que ele depende.
+          Clique em um nó para expandir a vizinhança e abrir os detalhes.
+          Procurando o impacto da migração .NET? Ele fica em
+          <a id="go-impact" style="color:var(--info)">Análise de Impacto</a>: aquela consulta percorre o
+          grafo operacional (repositórios e áreas), que é independente deste mapa.</div>
+        <div class="ribbon-row">
+          <div class="stats-inline" id="ribbon"><span class="muted">carregando…</span></div>
+          <div class="chip-bar inline">
+            <span class="chip arrow-hint"><b>A&nbsp;→&nbsp;B</b>&nbsp;A depende de B</span>
+            ${Object.entries(TYPE_COLOR).map(([t, c]) =>
+              `<span class="chip"><span class="cdot" style="background:${c}"></span>${t}</span>`).join("")}
+          </div>
+        </div>
         <div class="map-body" style="position:relative">
           <div id="graph-canvas"></div>
           <div id="drawer" class="drawer hidden"></div>
-          <div id="impact" class="impact-panel hidden"></div>
-        </div>
-        <div class="chip-bar">
-          ${Object.entries(TYPE_COLOR).map(([t, c]) =>
-            `<span class="chip"><span class="cdot" style="background:${c}"></span>${t}</span>`).join("")}
         </div>
       </div>`;
 
@@ -50,11 +60,20 @@
     await expand(START);
     network.once("stabilized", () => network.fit());
 
-    document.getElementById("comp-search").addEventListener("change", (e) => {
+    const search = document.getElementById("comp-search");
+    if (!search) return; // usuário já navegou para outro módulo durante o carregamento
+    search.addEventListener("change", (e) => {
       const opt = [...document.querySelectorAll("#comp-list option")].find((o) => o.value === e.target.value);
-      if (opt) expand(opt.dataset.id, true);
+      if (opt) {
+        expand(opt.dataset.id, true);
+        // limpa o campo: o datalist filtra pelo texto digitado, então sem limpar
+        // o próximo clique na setinha só mostraria a opção já selecionada
+        e.target.value = "";
+      }
     });
-    document.getElementById("btn-impact").addEventListener("click", showImpact);
+    search.addEventListener("focus", (e) => e.target.select());
+    document.getElementById("btn-fit").addEventListener("click", () => network.fit({ animation: true }));
+    document.getElementById("go-impact").addEventListener("click", () => S.showView("impact"));
   }
 
   async function loadStats() {
@@ -99,21 +118,49 @@
     await expand(id); // clicar expande a vizinhança
     const d = document.getElementById("drawer");
     try {
-      const c = await S.api(`/schema/components/${id}`);
+      const [c, q, hood] = await Promise.all([
+        S.api(`/schema/components/${id}`),
+        S.api(`/graph/component/${id}/query?depth=2`),
+        S.api(`/graph/component/${id}?depth=1`), // vizinhos diretos, nos dois sentidos
+      ]);
+      const labels = {};
+      hood.nodes.forEach((n) => { labels[n.id] = n.label; });
+      // seta A -> B = "A depende de B": saindo do nó = dependências; chegando = dependentes
+      const dependsOn = hood.edges.filter((e) => e.from === id)
+        .map((e) => ({ id: e.to, name: labels[e.to] || e.to }));
+      const dependedBy = hood.edges.filter((e) => e.to === id)
+        .map((e) => ({ id: e.from, name: labels[e.from] || e.from }));
+      const depList = (list) => list.length
+        ? `<div class="dep-list">${list.map((x) =>
+            `<a class="dep-link" data-id="${x.id}">${S.esc(x.name)}</a>`).join("")}</div>`
+        : `<div class="value muted">nenhum</div>`;
       const attrs = Object.entries(c.attributes || {})
         .map(([k, v]) => `<div class="field"><div class="label">${S.esc(k)}</div><div class="value">${badge(k, v)}</div></div>`)
         .join("") || `<div class="muted">sem atributos</div>`;
       d.innerHTML = `
         <h3><span>★ ${S.esc(c.name)}</span><span style="cursor:pointer" id="drawer-x">✕</span></h3>
-        <div class="field"><div class="label">Tipo</div><div class="value"><span class="tag info">${S.esc(c.type)}</span></div></div>
-        <div class="field"><div class="label">Descrição</div><div class="value muted">${S.esc(c.description || "—")}</div></div>
-        <div class="field"><div class="label">Relações (depende de)</div><div class="value">${(c.relations || []).length}</div></div>
-        <div class="label" style="margin-top:14px">Atributos (esquema flexível)</div>
+        <div class="field"><div class="label sec">Tipo</div><div class="value"><span class="tag info">${S.esc(c.type)}</span></div></div>
+        <div class="field"><div class="label sec">Descrição</div><div class="value muted">${S.esc(c.description || "—")}</div></div>
+        <div class="field"><div class="label sec">Depende de (setas saindo) · ${dependsOn.length}</div>${depList(dependsOn)}</div>
+        <div class="field"><div class="label sec">Dependentes (setas chegando) · ${dependedBy.length}</div>${depList(dependedBy)}</div>
+        <div class="label sec big-gap">Atributos (esquema flexível)</div>
         ${attrs}
-        <div class="label" style="margin-top:14px">Documento cru</div>
-        <pre>${S.esc(JSON.stringify(c, null, 2))}</pre>`;
+        <div class="label sec big-gap">Documento cru</div>
+        <pre>${S.highlightDoc(c, ["relations"])}</pre>
+        <div class="q-toggle"><a id="drawer-q-link">⟨⟩ ver o $graphLookup desta vizinhança</a></div>
+        <div id="drawer-q" class="hidden">
+          <div class="query-lead">db.${q.collection}.aggregate( … )</div>
+          <div class="query-code">${S.highlightJSON(q.pipeline)}</div>
+        </div>`;
       d.classList.remove("hidden");
       document.getElementById("drawer-x").addEventListener("click", () => d.classList.add("hidden"));
+      d.querySelectorAll(".dep-link").forEach((a) =>
+        a.addEventListener("click", () => expand(a.dataset.id, true)));
+      const link = document.getElementById("drawer-q-link");
+      link.addEventListener("click", () => {
+        const open = document.getElementById("drawer-q").classList.toggle("hidden");
+        link.textContent = open ? "⟨⟩ ver o $graphLookup desta vizinhança" : "⟨⟩ ocultar a consulta";
+      });
     } catch { /* ignore */ }
   }
 
@@ -121,50 +168,6 @@
     if (typeof v === "boolean") return `<span class="tag ${v ? "ok" : "neutral"}">${v}</span>`;
     if (key === "criticality") return `<span class="tag ${S.critClass(v)}">${S.esc(v)}</span>`;
     return `<span class="tag neutral">${S.esc(v)}</span>`;
-  }
-
-  async function showImpact() {
-    const panel = document.getElementById("impact");
-    panel.classList.remove("hidden");
-    panel.innerHTML = `<h3 style="display:flex;justify-content:space-between">Impacto · net6.0
-      <span style="cursor:pointer" id="imp-x">✕</span></h3><div class="spinner">rodando query A…</div>`;
-    document.getElementById("imp-x").addEventListener("click", () => panel.classList.add("hidden"));
-    try {
-      const [bus, q] = await Promise.all([
-        S.api("/graph/impact?framework=net6.0"),
-        S.api("/graph/impact/query?framework=net6.0"),
-      ]);
-      const maxE = Math.max(...bus.map((b) => b.effortScore), 1);
-      const body = bus.map((b) => {
-        const rail = b.effortScore > maxE * 0.66 ? "danger" : b.effortScore > maxE * 0.33 ? "warn" : "ok";
-        const eb = b.effortBreakdown;
-        return `<div class="bu-card" style="--rail:var(--${rail})">
-          <div class="bu-name">${S.esc(b.bu.name)}</div>
-          <div class="bu-meta">${b.appCount} apps · ${b.repoCount} repos · esforço <b>${b.effortScore}</b></div>
-          <div class="bu-meta">P/M/G: ${eb.smallRepos}/${eb.mediumRepos}/${eb.largeRepos} · vulns: ${eb.reposWithOpenVulns}</div>
-          <div class="bu-meta">resp.: ${(b.managers || []).map((m) => S.esc(m.name)).join(", ") || "—"}</div>
-          <div class="bar" style="width:${Math.round((b.effortScore / maxE) * 100)}%"></div>
-        </div>`;
-      }).join("");
-      panel.innerHTML = `<h3 style="display:flex;justify-content:space-between">Impacto · net6.0 · ${bus.length} BUs
-        <span style="cursor:pointer" id="imp-x2">✕</span></h3>
-        <div class="muted" style="font-size:12px;margin-bottom:8px">No modelo relacional, esta resposta dependia da função de análise e de JOINs recursivos entre repositórios, dependências e áreas. Aqui é um único pipeline de agregação.</div>
-        <div class="q-toggle"><a id="q-link">⟨⟩ ver o pipeline que roda no MongoDB</a></div>
-        <div id="q-wrap" class="hidden">
-          <div class="query-lead">db.${q.collection}.aggregate( … )</div>
-          <div class="query-code">${S.highlightJSON(q.pipeline)}</div>
-        </div>
-        <div class="muted" style="font-size:12px;margin:10px 0 6px">Aplicações .NET 6 afetadas por BU:</div>${body}`;
-      document.getElementById("imp-x2").addEventListener("click", () => panel.classList.add("hidden"));
-      const link = document.getElementById("q-link");
-      link.addEventListener("click", () => {
-        const w = document.getElementById("q-wrap");
-        const open = w.classList.toggle("hidden");
-        link.textContent = open ? "⟨⟩ ver o pipeline que roda no MongoDB" : "⟨⟩ ocultar o pipeline";
-      });
-    } catch (e) {
-      panel.innerHTML += `<div class="spinner">falhou ao rodar a análise.</div>`;
-    }
   }
 
   S.register("graph", { render });

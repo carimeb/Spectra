@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from backend.db import get_db
 from backend.pipelines.impact import build_impact_pipeline, framework_match
+from backend.pipelines.neighborhood import build_neighborhood_pipeline
 
 router = APIRouter(prefix="/graph", tags=["Grafo & Impacto"])
 
@@ -49,22 +50,7 @@ def component_neighborhood(component_id: str, depth: int = Query(2, ge=1, le=4))
     Usa `$graphLookup` nos dois sentidos sobre `archComponents.relations`.
     """
     db = get_db()
-    max_depth = max(0, depth - 1)
-    pipeline = [
-        {"$match": {"_id": component_id}},
-        # downstream: seguindo relations.targetId (o que este componente usa)
-        {"$graphLookup": {
-            "from": "archComponents", "startWith": "$relations.targetId",
-            "connectFromField": "relations.targetId", "connectToField": "_id",
-            "as": "downstream", "maxDepth": max_depth,
-        }},
-        # upstream: quem aponta para este componente (quem depende dele)
-        {"$graphLookup": {
-            "from": "archComponents", "startWith": "$_id",
-            "connectFromField": "_id", "connectToField": "relations.targetId",
-            "as": "upstream", "maxDepth": max_depth,
-        }},
-    ]
+    pipeline = build_neighborhood_pipeline(component_id, depth)
     result = list(db.archComponents.aggregate(pipeline))
     if not result:
         raise HTTPException(status_code=404, detail=f"componente {component_id!r} não encontrado")
@@ -81,3 +67,10 @@ def component_neighborhood(component_id: str, depth: int = Query(2, ge=1, le=4))
             if rel["targetId"] in docs:
                 edges.append({"from": d["_id"], "to": rel["targetId"]})
     return {"nodes": nodes, "edges": edges}
+
+
+@router.get("/component/{component_id}/query", summary="Pipeline real da vizinhança (para exibir na UI)")
+def component_neighborhood_query(component_id: str, depth: int = Query(2, ge=1, le=4)):
+    """Retorna o mesmo pipeline de `$graphLookup` que `/component/{id}` executa,
+    para a UI mostrar ao desenvolvedor a travessia real do grafo de arquitetura."""
+    return {"collection": "archComponents", "pipeline": build_neighborhood_pipeline(component_id, depth)}
