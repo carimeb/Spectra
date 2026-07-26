@@ -418,17 +418,69 @@ def _attributes_for(ctype: str) -> dict:
     return {key: fn() for key, fn in random.sample(pool, k)}
 
 
+# Frases de responsabilidade por domínio (enriquecimento de demo). O vocabulário
+# VARIADO é proposital: description é o corpus da busca híbrida, e 150 textos
+# quase iguais degradariam tanto o full-text quanto a busca semântica (Fase 4).
+_DOMAIN_PHRASES: dict[str, list[str]] = {
+    "Pagamentos": ["autorização e liquidação de transações", "fluxos de pagamento instantâneo", "trilhas de auditoria de transações"],
+    "Crédito": ["análise e concessão de crédito", "avaliação de risco do tomador", "esteiras de aprovação de propostas"],
+    "Cobrança": ["réguas de cobrança e notificações", "negociação de dívidas em atraso", "baixa automática de títulos"],
+    "Antifraude": ["detecção de transações suspeitas", "regras e escores de risco", "bloqueio preventivo de operações"],
+    "Onboarding": ["abertura de contas e cadastro digital", "validação de documentos e identidade", "jornadas de ativação de clientes"],
+    "Conciliação": ["batimento contábil entre sistemas", "fechamento diário de posições", "tratamento de divergências financeiras"],
+    "Investimentos": ["ordens e custódia de ativos", "posições e rentabilidade de carteiras", "integração com corretoras e bolsas"],
+    "Cartões": ["emissão e ciclo de vida de cartões", "processamento de faturas", "controles de limite e bloqueio"],
+    "Câmbio": ["contratação de operações de câmbio", "cotações e fechamento de taxas", "remessas internacionais"],
+    "Seguros": ["emissão e gestão de apólices", "processamento de sinistros", "cálculo de prêmios e coberturas"],
+    "Empréstimos": ["simulação e contratação de empréstimos", "gestão de contratos e parcelas", "renegociação de saldos devedores"],
+    "Faturas": ["geração e fechamento de faturas", "cálculo de encargos e juros", "distribuição de extratos"],
+    "Boletos": ["registro e liquidação de boletos", "integração com a rede bancária", "instruções de cobrança registrada"],
+    "Transferências": ["transferências entre contas", "liquidação em tempo real", "prevenção a lançamentos duplicados"],
+    "Recebíveis": ["antecipação de recebíveis", "gestão da agenda de recebíveis", "conciliação de repasses a lojistas"],
+    "Garantias": ["registro e avaliação de garantias", "monitoramento de colaterais", "execução de garantias vencidas"],
+    "Cadastro": ["dados cadastrais de clientes", "atualização e enriquecimento cadastral", "gestão de consentimentos e privacidade"],
+    "Limites": ["definição e revisão de limites", "consumo de limite em tempo real", "políticas de limite por produto"],
+    "Liquidação": ["liquidação financeira de operações", "janelas de compensação", "reconciliação com câmaras de liquidação"],
+    "Compliance": ["monitoramento de exigências regulatórias", "relatórios para órgãos supervisores", "trilhas de conformidade e auditoria"],
+}
+
+# Moldes de description por tipo de componente (2-3 frases; {p1}/{p2} vêm do domínio)
+_TYPE_TEMPLATES: dict[str, list[str]] = {
+    "system": [
+        "Sistema central de {noun}. Concentra {p1} e coordena {p2}, expondo APIs internas para os times de produto.",
+        "Núcleo de negócio para {noun}. Responsável por {p1}, com regras de {p2} e SLAs acompanhados pela engenharia.",
+        "Sistema transacional de {noun}. Processa {p1} em alto volume e mantém {p2} sob trilha de auditoria.",
+    ],
+    "application": [
+        "Aplicação de {noun} usada pelas squads no dia a dia. Implementa {p1} e consome serviços de {p2}.",
+        "Serviço de apoio a {noun}. Automatiza {p1} e publica eventos de {p2} para os sistemas vizinhos.",
+        "Aplicação que operacionaliza {noun}. Orquestra {p1} e acompanha {p2} em tempo quase real.",
+    ],
+    "platform": [
+        "Plataforma corporativa que sustenta {noun} em escala. Padroniza {p1} e oferece {p2} como serviço às demais áreas.",
+        "Fundação técnica compartilhada para {noun}. Centraliza {p1} e garante a resiliência de {p2}.",
+    ],
+    "database": [
+        "Base de dados do domínio de {noun}. Armazena {p1} com histórico para consultas analíticas e auditoria.",
+        "Repositório de dados de {noun}. Mantém {p1} com retenção controlada e acesso segregado por perfil.",
+    ],
+    "queue": [
+        "Fila de mensageria do domínio de {noun}. Transporta eventos de {p1} entre produtores e consumidores, absorvendo picos de volume.",
+        "Barramento assíncrono para {noun}. Garante a entrega de mensagens de {p1} com reprocessamento controlado.",
+    ],
+    "integration": [
+        "Integração que conecta {noun} a parceiros e sistemas externos. Traduz protocolos e normaliza dados de {p1}.",
+        "Conector de {noun} com o legado e provedores externos. Sincroniza {p1} e monitora falhas de comunicação.",
+    ],
+}
+_GENERIC_PHRASES = ["operações do dia a dia", "rotinas de retaguarda", "controles operacionais"]
+
+
 def _description(name: str, ctype: str, noun: str) -> str:
-    kind = {
-        "system": "Sistema", "application": "Aplicação", "platform": "Plataforma",
-        "integration": "Integração", "database": "Base de dados", "queue": "Fila de mensageria",
-    }[ctype]
-    return (
-        f"{kind} responsável por {noun.lower()} no ecossistema de serviços financeiros. "
-        f"Trata fluxos de {noun.lower()}, orquestrando autorização, processamento e "
-        f"conciliação de transações. Integra-se a componentes de antifraude, cadastro e "
-        f"liquidação, expondo APIs internas para os times de produto."
-    )
+    phrases = _DOMAIN_PHRASES.get(noun, _GENERIC_PHRASES)
+    p1, p2 = random.sample(phrases, 2)
+    template = random.choice(_TYPE_TEMPLATES[ctype])
+    return template.format(noun=noun.lower(), p1=p1, p2=p2)
 
 
 def gen_arch_components() -> list[dict]:
@@ -465,7 +517,13 @@ def gen_arch_components() -> list[dict]:
         return comp
 
     databases, queues, integrations, applications, systems, platforms = [], [], [], [], [], []
-    anchors = ["Motor de Crédito", "Conciliação de Pagamentos", "Antifraude", "Pagamentos Core"]
+    # âncoras das perguntas de referência do agente; noun = domínio das descriptions
+    anchors = {
+        "Motor de Crédito": "Crédito",
+        "Conciliação de Pagamentos": "Conciliação",
+        "Antifraude": "Antifraude",
+        "Pagamentos Core": "Pagamentos",
+    }
 
     for i in range(20):
         noun = random.choice(DOMAIN_NOUNS)
@@ -479,8 +537,8 @@ def gen_arch_components() -> list[dict]:
     for i in range(50):
         noun = random.choice(DOMAIN_NOUNS)
         applications.append(new_component(f"{random.choice(APP_PREFIXES)} {noun} {i+1}", "application", noun))
-    for name in anchors:
-        systems.append(new_component(name, "system", name.split()[-1]))
+    for name, noun in anchors.items():
+        systems.append(new_component(name, "system", noun))
     for i in range(36):
         noun = random.choice(DOMAIN_NOUNS)
         systems.append(new_component(f"{random.choice(SYSTEM_PREFIXES)} {noun} {i+1}", "system", noun))
