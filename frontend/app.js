@@ -216,5 +216,5 @@ window.Spectra = (function () {
       a.addEventListener("click", () => showView(a.dataset.view)));
   }
 
-  return { init, register, api, apiPost, el, esc, critClass, highlightJSON, highlightDoc, callout, showView };
+  return { init, register, api, apiPost, el, esc, critClass, highlightJSON, highlightDoc, highlightCode, callout, showView };
 })();

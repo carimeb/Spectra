@@ -201,6 +201,12 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .tree-hit { font-size: 11.5px; background: color-mix(in srgb, var(--rail) 25%, transparent);
   padding: 2px 8px; border-radius: 6px; margin-left: 2px; white-space: nowrap; }
 .tree-row.flash { outline: 2px solid var(--info); outline-offset: -2px; }
+.flash-outline { outline: 2px solid var(--ok); outline-offset: -2px; }
+
+/* prova ao vivo do Esquema Flexível (query C) */
+.proof-line { font-size: 12.5px; padding: 3px 0; line-height: 1.45; }
+.proof-line.ok { color: var(--ok); }
+.proof-line.bad { color: var(--danger); }
 
 .area-tree { max-width: 860px; }
 .tree-children { margin-left: 20px; border-left: 1px solid var(--border); padding-left: 14px; }
