@@ -30,10 +30,7 @@
           <div class="query-lead">o Atlas SQL expõe a collection como "tabela"; o Power BI lê pelo conector oficial
             (passo a passo completo em <a href="https://github.com/carimeb/Spectra/blob/main/docs/powerbi.md"
             target="_blank" rel="noopener" style="color:var(--info)">docs/powerbi.md</a>):</div>
-          <div class="query-code" style="margin-bottom:6px">SELECT name, projectName, location, analysis.commitTotal
-FROM repositories
-WHERE analysis.isDeprecated = false
-ORDER BY name LIMIT 40</div>
+          <div class="query-code" id="repo-sql-code" style="margin-bottom:6px"></div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;padding:6px 28px 28px">
@@ -48,6 +45,8 @@ ORDER BY name LIMIT 40</div>
       document.getElementById("repo-q-link").textContent =
         open ? "⟨⟩ ver a consulta desta lista" : "⟨⟩ ocultar a consulta";
     });
+    document.getElementById("repo-sql-code").innerHTML = S.highlightCode(
+      "SELECT name, projectName, location, analysis.commitTotal\nFROM repositories\nWHERE analysis.isDeprecated = false\nORDER BY name LIMIT 40");
     document.getElementById("repo-sql-link").addEventListener("click", () => {
       const open = document.getElementById("repo-sql").classList.toggle("hidden");
       document.getElementById("repo-sql-link").textContent =
@@ -149,7 +148,7 @@ ORDER BY name LIMIT 40</div>
         : `<div class="muted" style="font-size:12px">sem vulnerabilidades</div>`;
       side.innerHTML = `
         <div class="kpi-card" style="--rail:var(--primary)">
-          <h3>${S.esc(r.name)}</h3>
+          <h3 class="repo-title">${S.esc(r.name)}</h3>
           <div class="muted" style="font-size:12px;margin-bottom:8px">${S.esc(r.projectName)} · branch ${S.esc(r.defaultBranch || "—")}</div>
           <div class="label sec" style="margin-bottom:4px">analysis (computed pattern)</div>
           <div class="muted" style="font-size:11.5px;line-height:1.5;margin-bottom:8px">Resultado pré-calculado
@@ -160,7 +159,7 @@ ORDER BY name LIMIT 40</div>
         </div>
         <div class="kpi-card" style="--rail:var(--ok);margin-top:14px">
           <div class="label sec" style="margin-bottom:8px">Documento cru (como o BI lê)</div>
-          <div class="query-lead" style="margin-top:0">db.repositories.findOne({ _id: ${S.esc(JSON.stringify(r._id))} })</div>
+          <div class="query-code" style="margin-bottom:8px;padding:8px 10px;font-size:11px">${S.highlightCode(`db.repositories.findOne({ _id: ${JSON.stringify(r._id)} })`)}</div>
           <pre class="side-json">${S.highlightDoc(r, ["analysis"])}</pre>
         </div>
         <div class="kpi-card" style="--rail:var(--info);margin-top:14px"><div class="label sec" style="margin-bottom:8px">Top dependências</div>${deps || '<div class="muted">—</div>'}</div>

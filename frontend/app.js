@@ -60,13 +60,36 @@ window.Spectra = (function () {
       .replaceAll("@@HOT@@", '<span class="j-hot">')
       .replaceAll("@@ENDHOT@@", "</span>");
   }
-  // highlight leve para comandos no estilo shell do MongoDB (db.coll.aggregate(...))
+  // highlight para comandos no estilo shell do MongoDB (db.coll.aggregate(...)) e SQL.
+  // Passada única (tokenizador): cada trecho é consumido por inteiro pelo primeiro
+  // padrão que casar, então strings nunca são re-coloridas por dentro.
   function highlightCode(str) {
-    let h = esc(str);
-    h = h.replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)/g, '<span class="js">$1</span>'); // strings
-    h = h.replace(/(\$[a-zA-Z]+)/g, '<span class="jk">$1</span>'); // operadores $
-    h = h.replace(/\b(true|false|null)\b/g, '<span class="jb">$1</span>');
-    return h;
+    const RE = new RegExp(
+      [
+        "(\\/\\/[^\\n]*)",                                   // 1 comentário
+        "(&quot;(?:[^&]|&(?!quot;))*?&quot;)",               // 2 string
+        "(\\/(?:\\\\.|[^\\/\\n])+\\/[a-z]*)",                // 3 regex literal
+        "(\\$[a-zA-Z]+)",                                    // 4 operador $
+        "\\b(SELECT|FROM|WHERE|GROUP BY|ORDER BY|LIMIT|COUNT|AS|AND|OR|DESC|ASC)\\b", // 5 SQL
+        "\\b(true|false|null)\\b",                           // 6 booleano/null
+        "\\bdb\\.([a-zA-Z_]\\w*)\\.([a-zA-Z_]\\w*)(?=\\()",  // 7 collection + 8 método
+        "([a-zA-Z_][\\w.]*)(?=\\s*:)",                       // 9 chave de objeto
+        "(-?\\b\\d+(?:\\.\\d+)?\\b)",                        // 10 número
+      ].join("|"),
+      "g"
+    );
+    return esc(str).replace(RE, (m, com, s, rx, dol, sql, boo, coll, method, key, num) => {
+      if (com) return `<span class="jc">${com}</span>`;
+      if (s) return `<span class="js">${s}</span>`;
+      if (rx) return `<span class="js">${rx}</span>`;
+      if (dol) return `<span class="jk">${dol}</span>`;
+      if (sql) return `<span class="jk">${sql}</span>`;
+      if (boo) return `<span class="jb">${boo}</span>`;
+      if (coll) return `db.<span class="jn">${coll}</span>.<span class="jk">${method}</span>`;
+      if (key) return `<span class="jk">${key}</span>`;
+      if (num) return `<span class="jn">${num}</span>`;
+      return m;
+    });
   }
   function register(name, mod) { modules[name] = mod; }
 
