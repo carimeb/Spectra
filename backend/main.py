@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from backend.db import collection_counts, ping
-from backend.routers import areas, graph, repositories, schema_flex, stats
+from backend.routers import areas, copilot, graph, repositories, schema_flex, stats
 
 app = FastAPI(
     title="Spectra API",
@@ -37,7 +37,7 @@ async def no_cache(request, call_next):
     return response
 
 
-for r in (graph.router, areas.router, schema_flex.router, repositories.router, stats.router):
+for r in (graph.router, areas.router, schema_flex.router, repositories.router, stats.router, copilot.router):
     app.include_router(r, prefix="/api")
 
 

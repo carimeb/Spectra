@@ -215,6 +215,40 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .side-json { margin: 0; background: #0B1020; border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 10px 12px; font-size: 11px; line-height: 1.5; overflow: auto; max-height: 320px; color: #b9c4dd; }
 
+/* ===================== COPILOT (chat do agente) ===================== */
+.chat-wrap { display: flex; flex-direction: column; height: 100vh; }
+/* chat à esquerda + painel "por baixo dos panos" à direita */
+.copilot-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 0 18px; }
+.chat-main { display: flex; flex-direction: column; min-height: 0; }
+.copilot-side { overflow: auto; padding: 6px 28px 20px 0; display: flex; flex-direction: column; gap: 14px; }
+.tool-item { padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  margin-bottom: 8px; transition: border-color .2s, background .2s; }
+.tool-item code { font-size: 12px; }
+.tool-item.used { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 8%, transparent); }
+.mem-line { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; border-bottom: 1px solid var(--border);
+  font-size: 11.5px; line-height: 1.45; }
+.mem-line:last-child { border-bottom: 0; }
+.chat-log { flex: 1; overflow: auto; padding: 6px 28px; display: flex; flex-direction: column; gap: 10px; }
+.msg { max-width: 720px; padding: 10px 14px; border-radius: var(--radius); font-size: 14px; line-height: 1.55; }
+.msg.user { align-self: flex-end; background: color-mix(in srgb, var(--primary) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent); }
+.msg.assistant { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); }
+.msg.assistant.wait { color: var(--muted); font-style: italic; }
+.msg .q-toggle { margin: 8px 0 0; }
+.tool-block { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.tool-call { background: #0B1020; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 10px; font-size: 12px; }
+.tool-call code { font-size: 11px; }
+.tool-summary { color: var(--muted); font-size: 11.5px; margin-top: 4px; font-family: ui-monospace, Menlo, monospace;
+  overflow-wrap: anywhere; }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 28px; }
+.chip-suggestion { background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 999px; padding: 8px 14px; font-size: 13px; }
+.chip-suggestion:hover { border-color: var(--primary); }
+.chat-bar { display: flex; gap: 10px; padding: 12px 28px 18px; border-top: 1px solid var(--border); }
+.chat-bar input { flex: 1; padding: 11px 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 14px; }
+
 /* prova ao vivo do Esquema Flexível (query C) */
 .proof-line { font-size: 12.5px; padding: 3px 0; line-height: 1.45; }
 .proof-line.ok { color: var(--ok); }

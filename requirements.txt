@@ -1,8 +1,7 @@
 # Spectra — dependências
 #
-# IMPORTANTE: use Python 3.12. O stack do agente (Fase 4) ainda não suporta
-# Python 3.13. Para rodar apenas o seed (Fase 1), bastam pymongo, python-dotenv
-# e Faker — funcionam em qualquer 3.11+.
+# Testado com Python 3.12 e 3.13. Para rodar apenas o seed, bastam pymongo,
+# python-dotenv e Faker (qualquer 3.11+); o restante atende a API e o agente.
 
 # --- núcleo: API, banco, seed (Fases 1–3) ---
 fastapi>=0.115.6
