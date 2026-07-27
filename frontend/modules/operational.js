@@ -1,4 +1,4 @@
-/* Módulo Grafo Operacional — as duas queries-herói do grafo operacional numa tela só:
+/* Módulo Grafo Operacional — as duas consultas centrais do grafo operacional numa tela só:
    query B (estrutura): $graphLookup DESCE Area.ParentId e devolve a árvore pronta;
    query A (impacto): pipeline parte das dependências e SOBE a mesma hierarquia até a
    BU, pintando o resultado na própria árvore + ranking no painel lateral. */

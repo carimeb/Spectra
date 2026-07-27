@@ -45,7 +45,7 @@ window.Spectra = (function () {
   function highlightJSON(obj) {
     return hlJSONText(esc(JSON.stringify(obj, null, 2)));
   }
-  // documento cru com cores + campos em DESTAQUE (hotKeys), para localizar rápido em demo.
+  // documento cru com cores + campos em DESTAQUE (hotKeys), para localizar rápido na tela.
   // Marca o bloco do campo com sentinelas antes do escape e as troca por <span> no final.
   function highlightDoc(obj, hotKeys = []) {
     let text = JSON.stringify(obj, null, 2);
@@ -93,7 +93,7 @@ window.Spectra = (function () {
   }
   function register(name, mod) { modules[name] = mod; }
 
-  // contraste "Antes (SQL Server) -> Agora (MongoDB)" — o argumento de venda de cada tela
+  // contraste "Antes (SQL Server) -> Agora (MongoDB)" de cada tela
   function callout(before, after) {
     return `<div class="value-callout">
       <div class="vc before"><span class="vc-tag">Antes · SQL Server</span><p>${esc(before)}</p></div>
@@ -218,7 +218,7 @@ window.Spectra = (function () {
     }
   }
 
-  function openDemo() {
+  function openApp() {
     document.getElementById("landing").classList.add("hidden");
     document.getElementById("app").classList.remove("hidden");
     showView("overview");
@@ -232,8 +232,8 @@ window.Spectra = (function () {
   }
 
   function init() {
-    document.getElementById("open-demo").addEventListener("click", openDemo);
-    document.getElementById("open-demo-top").addEventListener("click", openDemo);
+    document.getElementById("open-app").addEventListener("click", openApp);
+    document.getElementById("open-app-top").addEventListener("click", openApp);
     document.getElementById("go-home").addEventListener("click", goHome);
     document.querySelectorAll(".nav-item[data-view]").forEach((a) =>
       a.addEventListener("click", () => showView(a.dataset.view)));

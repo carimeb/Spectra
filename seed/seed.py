@@ -61,7 +61,7 @@ def maybe_embed(components: list[dict]) -> bool:
 
 
 def check_integrity(data: dict) -> None:
-    """Falha se houver referência órfã — parte do critério de aceite da Fase 1."""
+    """Falha se houver referência órfã (coerência referencial do seed)."""
     ids = {name: {doc["_id"] for doc in docs} for name, docs in data.items()}
     errors: list[str] = []
 

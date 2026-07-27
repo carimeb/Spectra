@@ -1,18 +1,18 @@
 """Geradores determinísticos das 6 collections do Spectra.
 
-Tudo é 100% sintético e reprodutível (Faker + random com seed=42). Nenhum nome
-real de empresa/cliente/pessoa. Domínio: serviços financeiros GENÉRICOS.
+Tudo é 100% sintético e reprodutível (Faker + random com semente fixa). Nenhum nome
+real de empresa ou pessoa. Domínio: serviços financeiros GENÉRICOS.
 
-FIDELIDADE AO SCHEMA DE ORIGEM (decisões tomadas a partir do DDL do cliente):
+FIDELIDADE AO SCHEMA RELACIONAL DE ORIGEM:
 - Existem DOIS grafos independentes na fonte, e nós os mantemos separados:
   * grafo de ARQUITETURA: archComponents <-> archComponents (arestas NÃO-tipadas,
     espelhando ArchComponentRelation, que é só pai/filho). archComponents NÃO
     referenciam repositórios/áreas/usuários (essa ligação não existe na origem).
   * grafo OPERACIONAL: repositories -> areas (RepositoryArea) -> hierarquia de áreas
-    (Area.ParentId) -> responsáveis (AreaUserDetail). É este que a query-herói A usa.
+    (Area.ParentId) -> responsáveis (AreaUserDetail). É este que a análise de impacto usa.
 - A versão .NET NÃO é um campo da fonte: é DERIVADA da dependência de runtime
   (CodeProjectDependency: nome + versão). Não armazenamos `targetFramework`.
-- Enriquecimentos de demo (não vêm da fonte, rotulados como tais): `description`
+- Enriquecimentos do protótipo (não vêm da fonte, rotulados como tais): `description`
   e `embedding` (busca híbrida), e o vocabulário dos `attributes` (placeholders).
 
 Ordem de geração (coerência referencial):
@@ -195,7 +195,7 @@ def gen_areas(user_ids: list[str]):
 # repositories  (Repository + Project + RepositoryArea + function RepositoryGetAnalysis)
 # --------------------------------------------------------------------------- #
 # location espelha RepositoryLocation da function (4 valores reais; "unidentified"
-# corrige o typo "undentified" da fonte — ver DECK).
+# normaliza a grafia do valor da fonte).
 LOCATIONS = (["cloud"] * 65) + (["server"] * 25) + (["payments"] * 7) + (["unidentified"] * 3)
 
 # distribuição interna de framework (NÃO vira campo; guia a dependência de runtime)
@@ -282,9 +282,9 @@ def _runtime_dependency(framework: str) -> dict:
 def derive_framework(dep_name: str, dep_version: str) -> str | None:
     """Regra de derivação da versão .NET a partir da dependência de runtime.
 
-    Mesma regra que a query-herói A expressa em estágios de agregação. Documentada
-    para o cliente: "lemos suas linhas de CodeProjectDependency e inferimos o alvo
-    .NET do pacote de runtime + versão — nenhuma coluna nova".
+    Mesma regra que a análise de impacto expressa em estágios de agregação: lê as
+    linhas de CodeProjectDependency e infere o alvo .NET do pacote de runtime +
+    versão, nenhuma coluna nova.
     """
     if dep_name == "Microsoft.AspNetCore.App":
         return f"net{dep_version.split('.')[0]}.0"
@@ -374,8 +374,8 @@ def gen_vulnerabilities(repos: list[dict], deps: list[dict], n: int = 350) -> li
 # archComponents  (ArchComponent + EAV -> attributes; ArchComponentRelation -> relations)
 # GRAFO ISOLADO: arestas NÃO-tipadas, apenas componente->componente.
 # --------------------------------------------------------------------------- #
-# Atributos HETEROGÊNEOS por tipo — o ponto da query-herói C (era EAV). Sem pciScope
-# (adicionado ao vivo na demo, SPEC §6.3).
+# Atributos HETEROGÊNEOS por tipo — o ponto do esquema flexível (era EAV). Sem pciScope
+# (reservado como exemplo de atributo novo no módulo Esquema Flexível, SPEC §7.3).
 _ATTR_POOLS: dict[str, list] = {
     "system": [
         ("criticality", lambda: random.choice(["high", "medium", "low"])),
@@ -418,9 +418,9 @@ def _attributes_for(ctype: str) -> dict:
     return {key: fn() for key, fn in random.sample(pool, k)}
 
 
-# Frases de responsabilidade por domínio (enriquecimento de demo). O vocabulário
-# VARIADO é proposital: description é o corpus da busca híbrida, e 150 textos
-# quase iguais degradariam tanto o full-text quanto a busca semântica (Fase 4).
+# Frases de responsabilidade por domínio (enriquecimento do protótipo). O vocabulário
+# VARIADO é proposital: description é o corpus da busca do agente, e 150 textos
+# quase iguais degradariam tanto o full-text quanto a busca semântica.
 _DOMAIN_PHRASES: dict[str, list[str]] = {
     "Pagamentos": ["autorização e liquidação de transações", "fluxos de pagamento instantâneo", "trilhas de auditoria de transações"],
     "Crédito": ["análise e concessão de crédito", "avaliação de risco do tomador", "esteiras de aprovação de propostas"],

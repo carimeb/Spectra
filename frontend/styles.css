@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Spectra — design tokens (emulados do sistema atual do cliente) + componentes
+   Spectra — design tokens + componentes
    Tema ESCURO como assinatura (Mapa & Grafo); tema CLARO nas tabelas/dashboard.
    ========================================================================== */
 :root {
@@ -64,7 +64,7 @@ button { font-family: inherit; cursor: pointer; }
 
 .main { overflow: auto; background: var(--bg); }
 
-/* contraste Antes/Agora (argumento de venda por tela) */
+/* contraste Antes/Agora por tela */
 .value-callout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 28px 18px; }
 .vc { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; background: var(--surface); }
 .vc-tag { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; }
@@ -133,7 +133,7 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .drawer .field { margin-bottom: 12px; }
 .drawer .field .label { text-transform: uppercase; font-size: 11px; letter-spacing: .06em; color: var(--muted); }
 /* títulos de seção (drawer do Mapa, drilldown do Dashboard): verde-terminal,
-   2pt maiores e em negrito — âncoras de leitura durante a demo */
+   2pt maiores e em negrito (âncoras de leitura) */
 .label.sec { color: #7EE787; font-size: 13px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .06em; }
 /* "Atributos" e "Documento cru": uma linha extra de respiro */
@@ -161,7 +161,7 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .js { color: #FF9E64; }  /* strings */
 .jn { color: #79C0FF; }  /* números */
 .jb { color: #D2A8FF; }  /* booleanos */
-/* campo em destaque no documento cru (ex.: relations[]) — âncora visual da demo */
+/* campo em destaque no documento cru (ex.: relations[]) */
 .j-hot { font-weight: 700; font-size: 1.15em; background: rgba(46,91,255,.16);
   border-radius: 6px; padding: 1px 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .query-lead { font-size: 12px; color: var(--muted); margin: 8px 0 6px; }
@@ -180,7 +180,7 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .dep-link:hover { background: rgba(56,189,248,.25); }
 
 /* ============== GRAFO OPERACIONAL (queries A + B numa tela) ============== */
-/* os dois cards de pergunta: a mensagem objetiva que guia a demo */
+/* os dois cards de pergunta que abrem a tela */
 .dual-q { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 28px 12px; }
 .qcard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
 .qcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
@@ -188,7 +188,7 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .dir { margin-left: auto; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .dir.ok { color: var(--ok); } .dir.warn { color: var(--warn); }
 .qcard p { margin: 0 0 10px; font-size: 13px; color: var(--muted); line-height: 1.55; }
-/* contraste "Era: ..." (a dor no SQL Server), usado nos qcards e nas descrições das telas */
+/* contraste "Era: ..." (o custo no modelo relacional), usado nos qcards e nas descrições */
 .was { color: var(--danger); font-weight: 600; }
 /* termo com explicação no hover */
 .hint { cursor: help; border-bottom: 1px dotted var(--muted); }
@@ -249,7 +249,7 @@ table.grid tr:hover td { background: rgba(255,255,255,.05); cursor: pointer; }
 .chat-bar input { flex: 1; padding: 11px 14px; background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-sm); color: var(--text); font-size: 14px; }
 
-/* prova ao vivo do Esquema Flexível (query C) */
+/* prova ao vivo do Esquema Flexível */
 .proof-line { font-size: 12.5px; padding: 3px 0; line-height: 1.45; }
 .proof-line.ok { color: var(--ok); }
 .proof-line.bad { color: var(--danger); }

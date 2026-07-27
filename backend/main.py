@@ -1,7 +1,7 @@
 """App FastAPI do Spectra: monta os routers da API e serve o frontend estático.
 
 Rodar: `uvicorn backend.main:app --reload`
-Docs interativas (usadas na demo): http://localhost:8000/docs
+Docs interativas: http://localhost:8000/docs
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ app = FastAPI(
     version="0.2.0",
 )
 
-# CORS liberado para desenvolvimento local (demo).
+# CORS liberado para desenvolvimento local.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,7 +31,7 @@ app.add_middleware(
 
 @app.middleware("http")
 async def no_cache(request, call_next):
-    """Evita cache de assets estáticos durante a demo (sempre revalida)."""
+    """Evita cache de assets estáticos durante o desenvolvimento (sempre revalida)."""
     response = await call_next(request)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
@@ -50,7 +50,7 @@ def health():
         return {"status": "degraded", "detail": "não foi possível conectar ao banco"}
 
 
-# Frontend estático (Fase 3). Montado por último para não capturar as rotas /api.
+# Frontend estático. Montado por último para não capturar as rotas /api.
 _FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
 if os.path.isdir(_FRONTEND_DIR):
     app.mount("/", StaticFiles(directory=_FRONTEND_DIR, html=True), name="frontend")

@@ -1,5 +1,5 @@
 /* Módulo Esquema Flexível — adicionar atributo/relação a um componente e ver o
-   documento mudar SEM migração (query-herói C). Tema claro. */
+   documento mudar SEM migração de modelo. */
 (function () {
   const S = window.Spectra;
   let current = null;

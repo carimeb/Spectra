@@ -1,7 +1,6 @@
-# Segredos e contexto interno — NUNCA commitar
+# Segredos e arquivos locais — NUNCA commitar
 .env
-CLAUDE.local.md
-DECK.local.md
+*.local.md
 
 # Python
 __pycache__/

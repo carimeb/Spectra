@@ -1,4 +1,4 @@
-"""/api/copilot/chat — chat do agente (Fase 4).
+"""/api/copilot/chat — chat do agente.
 
 Erros de auth/quota do gateway viram mensagem amigável (nunca stacktrace na UI
 nem token em log). Sem LLM configurado, o endpoint responde orientando a
@@ -57,7 +57,7 @@ def memory(sessionId: str = "default"):
 @router.post("/chat", summary="Conversa com o Copilot (agente sobre os dados)")
 def chat(body: ChatBody):
     """Envia uma pergunta em pt-BR ao agente. A resposta traz `reply` e `toolCalls`
-    (quais ferramentas o agente usou, com inputs e resumo — transparência é parte da demo).
+    (quais ferramentas o agente usou, com inputs e resumo, exibidos pela UI).
     A memória da conversa persiste por `sessionId` na collection `agent_checkpoints`."""
     from backend.agent.graph_agent import llm_configured, run_agent
 

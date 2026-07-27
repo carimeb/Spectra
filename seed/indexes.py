@@ -31,7 +31,7 @@ def create_regular_indexes(db: Database) -> None:
     _safe(db.archComponents.create_index, "relations.targetId")
     _safe(db.areas.create_index, "parentId")
     _safe(db.dependencies.create_index, "repositoryId")
-    # 'name' (+ version) é o pivô da derivação de framework da query-herói A
+    # 'name' (+ version) é o pivô da derivação de framework da análise de impacto
     _safe(db.dependencies.create_index, [("name", 1), ("version", 1)])
     _safe(db.vulnerabilities.create_index, "repositoryId")
     _safe(db.repositories.create_index, "areaId")

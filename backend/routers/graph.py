@@ -1,4 +1,4 @@
-"""/api/graph/* — análise de impacto (query-herói A) e vizinhança do grafo de arquitetura."""
+"""/api/graph/* — análise de impacto e vizinhança do grafo de arquitetura."""
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
@@ -10,7 +10,7 @@ from backend.pipelines.neighborhood import build_neighborhood_pipeline
 router = APIRouter(prefix="/graph", tags=["Grafo & Impacto"])
 
 
-@router.get("/impact", summary="Impacto de migração .NET (query-herói A)")
+@router.get("/impact", summary="Impacto de migração .NET por BU")
 def impact(framework: str = Query("net6.0", description="Versão .NET de origem: net48, net6.0 ou net8.0")):
     """Quais BUs são afetadas ao migrar apps de uma versão .NET, quantas aplicações,
     quantos repositórios, os responsáveis e um `effortScore` (com breakdown explicativo).

@@ -1,4 +1,4 @@
-"""/api/areas/* — hierarquia de áreas recursiva (query-herói B)."""
+"""/api/areas/* — hierarquia de áreas recursiva."""
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Query
@@ -38,7 +38,7 @@ def areas_tree_query(rootId: str | None = Query(None, description="Raiz da subá
     ]}
 
 
-@router.get("/tree", summary="Árvore de áreas (query-herói B)")
+@router.get("/tree", summary="Árvore de áreas (hierarquia recursiva)")
 def areas_tree(rootId: str | None = Query(None, description="Raiz da subárvore; vazio = raiz da organização")):
     """Retorna a hierarquia de áreas como JSON aninhado `{id, name, level, repoCount, children}`,
     usando `$graphLookup` descendo `Area.ParentId`. Com contagem de repositórios por nó.

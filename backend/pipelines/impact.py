@@ -1,11 +1,11 @@
-"""Query-herói A — Impacto de migração .NET X → Y.
+"""Consulta central: impacto de migração .NET X → Y.
 
-Grafo OPERACIONAL (fiel ao DDL): dependency → repository → hierarquia de áreas →
+Grafo OPERACIONAL (fiel à origem relacional): dependency → repository → hierarquia de áreas →
 responsáveis, agrupado por BU. A versão .NET é DERIVADA da dependência de runtime
 (não existe campo targetFramework). O grafo de arquitetura (archComponents) é
 separado na fonte e NÃO participa desta query.
 
-Cada estágio está anotado com o equivalente relacional (para o de-para do cliente).
+Cada estágio está anotado com o equivalente relacional de origem.
 """
 from __future__ import annotations
 
@@ -57,8 +57,8 @@ def build_impact_pipeline(framework: str) -> list[dict]:
             "as": "openVulns",
         }},
 
-        # 4. Fórmula fechada do effortScore (SPEC §6.1): pontos_tamanho + pontos_risco.
-        #    O ponto da demo: nasce de campos JÁ materializados (commitTotal + vulns),
+        # 4. Fórmula fechada do effortScore (SPEC §7.1): pontos_tamanho + pontos_risco.
+        #    O ponto técnico: nasce de campos JÁ materializados (commitTotal + vulns),
         #    sem nenhuma CTE. Score ilustrativo; a UI explica pelo breakdown.
         {"$addFields": {
             "sizePoints": {"$switch": {"branches": [

@@ -94,7 +94,7 @@ Com a tabela `repositories` carregada:
 
 Observação de fidelidade: a versão .NET **não é um campo** de `repositories`
 (ela é derivada da dependência de runtime em `dependencies`, como faz a análise
-de impacto da demo). Para um visual por framework, agregue previamente em uma
+de impacto do protótipo). Para um visual por framework, agregue previamente em uma
 view ou traga também a "tabela" `dependencies` e relacione por `repositoryId`.
 
 ## 6. Validação sem Power BI (`$sql` no mongosh)

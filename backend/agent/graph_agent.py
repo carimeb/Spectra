@@ -1,6 +1,6 @@
 """Agente ReAct do Copilot (LangGraph) com checkpointer MongoDB.
 
-Acesso ao LLM SEMPRE via gateway (SPEC §8.1): apenas LLM_BASE_URL + LLM_API_KEY +
+Acesso ao LLM SEMPRE via endpoint configurável (SPEC §9): apenas LLM_BASE_URL + LLM_API_KEY +
 LLM_MODEL do .env, modelo nunca hardcoded. A escolha de protocolo (Anthropic-compatible,
 padrão, ou OpenAI-compatible, plano B) fica confinada a get_chat_model(); nenhum outro
 arquivo conhece o provedor. A memória de conversa persiste por sessionId na collection

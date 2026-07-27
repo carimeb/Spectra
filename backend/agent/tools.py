@@ -3,7 +3,7 @@
 Dois grafos independentes (fiel à origem), e as ferramentas respeitam a separação:
   - ARQUITETURA: `hybrid_search` (texto sobre name/description) e `graph_traversal`
     ($graphLookup em archComponents.relations, nos dois sentidos).
-  - OPERACIONAL: `impact_analysis` (query-herói A) e `area_info` (áreas + responsáveis).
+  - OPERACIONAL: `impact_analysis` (análise de impacto) e `area_info` (áreas + responsáveis).
 
 Escada de degradação da busca (nunca erro, sempre resposta):
   1. embeddings configurados no runtime -> busca híbrida (full-text + vetorial, rank fusion);

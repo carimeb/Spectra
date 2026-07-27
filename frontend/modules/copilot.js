@@ -1,7 +1,7 @@
 /* Módulo Copilot — chat em pt-BR sobre /api/copilot/chat + painel "por baixo dos
    panos" na coluna direita: as ferramentas do agente (acendem quando usadas) e a
    memória persistida no Atlas (lida DE VOLTA de agent_checkpoints a cada turno).
-   É o aperitivo de MongoDB como banco de memória/plataforma para agentes. */
+   Mostra o MongoDB como banco de memória/plataforma para agentes. */
 (function () {
   const S = window.Spectra;
   const SUGGESTIONS = [

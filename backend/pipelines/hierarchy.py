@@ -1,4 +1,4 @@
-"""Query-herói B — Hierarquia de áreas recursiva.
+"""Consulta central: hierarquia de áreas recursiva.
 
 `$graphLookup` DESCENDO a adjacência `Area.ParentId` (substitui a CTE recursiva /
 a tabela de caminho materializado `AreaPath`). O router monta a árvore aninhada e

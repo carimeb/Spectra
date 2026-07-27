@@ -1,4 +1,4 @@
-"""/api/schema/* — esquema flexível sem migração (query-herói C).
+"""/api/schema/* — esquema flexível sem migração de modelo.
 
 Adicionar um atributo nomeado ou uma relação a um componente e re-executar as
 queries/o grafo sem nenhuma migração, tabela nova ou deploy.
