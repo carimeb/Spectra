@@ -11,6 +11,10 @@ com `$graphLookup` e métricas materializadas.
 
 Todos os dados são **100% sintéticos**, gerados por seed determinístico. Licença MIT.
 
+![Landing do Spectra](docs/images/spectra-landing.png)
+
+![Módulo Mapa & Grafo do Spectra](docs/images/spectra-mapa-grafo.png)
+
 ## Três limitações do modelo relacional, três padrões no documento
 
 | Limitação no modelo relacional | Padrão no documento | Onde ver |
